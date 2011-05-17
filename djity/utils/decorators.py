@@ -15,7 +15,7 @@ from django.template import RequestContext, loader
 from djity.utils.context import DjityContext, JSTarget
 
 from djity.project.models import Project
-from djity.portlet.models import update_portlets_context
+from djity.portlet.models import get_portlets
 from djity.utils import djreverse
 
 log = logging.getLogger('djity')
@@ -104,9 +104,9 @@ def djity_view(perm='view'):
                     return HttpResponseRedirect(djreverse('forbidden',context))
 
             # Add context of project and module level portlets
-            update_portlets_context(context['project'],context)
+            context['portlets'] = get_portlets(context['project'])
             if 'module' in context:
-                update_portlets_context(context['module'],context)
+                context['portlets'].extend(get_portlets(context['module']))
 
             #add info message from url in context
             if request.method == 'GET':

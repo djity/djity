@@ -5,7 +5,10 @@ from django.contrib import messages
 
 class DjityJSONEncoder(json.JSONEncoder):
     def default(self,obj):
-        return str(obj)
+        if 'to_json' in obj.__dict__:
+            return obj.to_json()
+        else:
+            return str(obj)
 
 class JSONContext():
     def __init__(self,context):

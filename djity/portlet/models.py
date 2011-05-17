@@ -49,6 +49,17 @@ class Portlet(models.Model):
         if (model == Portlet):
             return self
         return model.objects.get(id=self.id)
+
+    def to_json(self):
+        """
+        json serialization for Djity context
+        """
+        return {'__class__':self.__class__,
+                'position':str(self.position),
+                'rel_position':str(self.rel_position),
+                'onload':self.onload,
+                'media':self.media,
+                'div_class':self.div_class}
     
 
 class TextPortlet(Portlet):
@@ -99,37 +110,4 @@ def get_portlets(container):
     portlets = Portlet.objects.filter(container_type__pk=ctype.id, container_id=container.id)
     return portlets
 
-def get_portlets_data(container,position,parent_context):
-    """
-    Build context for all portlets for a container and at a given postion (left, right, etc..)
-    """
-    ctype = ContentType.objects.get_for_model(container)
-    portlets = Portlet.objects.filter(container_type__pk=ctype.id, container_id=container.id,position=position)
-    portlets.order_by('rel_position')
-    data = {}
-    portlet_ids = []
-    data['onload'] = parent_context.get('onload',"")
-    data['media'] = parent_context.get('media',set([]))
-    for portlet in portlets:
-        # remember each portlet and put it in al list
-        portlet_id = portlet.id
-        data["portlet_%s"%portlet_id] = portlet
-        portlet_ids.append(portlet_id)
-        # add onload code
-        data['onload'] += portlet.onload
-        data['media'] |= portlet.media
-
-    pos_key = "portlets_%s"%position
-    data[pos_key] = parent_context.get(pos_key,[])
-    data[pos_key].extend(portlet_ids)
-    return data
-
-def update_portlets_context(container, context):
-    """
-    Build the context dicitonary containing all portlets data for a container
-    """
-    for position in ['left','right','bottom','top','toolbar']:
-        context.update(get_portlets_data(container,position,context))
-
-    return context
 

@@ -6,7 +6,6 @@ from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User
 
 from djity.transmeta import TransMeta
-from djity.portlet.models import TextPortlet,update_portlets_context
 
 class SiteRoot(models.Model):
     """
@@ -50,9 +49,6 @@ class SiteRoot(models.Model):
             'site_name':self.name,
             'MEDIA_URL':settings.MEDIA_URL,
         })
-
-        # Add context of site root level portlets
-        update_portlets_context(self,context)
 
     def __unicode__(self):
         return self.name
